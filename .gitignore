@@ -1,0 +1,14 @@
+data/
+__pycache__/
+python-keycloak-sso/__pycache__/
+python-keycloak-sso/data/
+
+.angular/
+node_modules/
+dist/
+.vscode/
+angular-keycloak-sso/node_modules/
+angular-keycloak-sso/dist/
+angular-keycloak-sso/.vscode/
+angular-keycloak-sso/.angular/
+
