@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { KeycloakService } from 'keycloak-angular';
+import { KeycloakEventType, KeycloakService } from 'keycloak-angular';
 
 @Injectable({
   providedIn: 'root',
@@ -22,11 +22,29 @@ export class AuthService {
         },
       })
       .then((authenticated) => {
-        console.log(authenticated ? 'Autenticado' : 'Não autenticado');
+        if (!authenticated) {
+          window.location.reload();
+        }
+        console.log('Autenticado:', authenticated);
+        const token = this.keycloak.getKeycloakInstance().token;
+        const refreshToken = this.keycloak.getKeycloakInstance().refreshToken;
+        if (token) sessionStorage.setItem('token', token);
+        if (refreshToken) sessionStorage.setItem('refreshToken', refreshToken);
       })
       .catch((error) => {
         console.error('Erro ao inicializar o Keycloak:', error);
       });
+
+    await this.keycloak.keycloakEvents$.subscribe({
+      next: async (event) => {
+        if (event.type == KeycloakEventType.OnTokenExpired) {
+          const tokenUpdate = await this.keycloak.updateToken(30);
+          console.log('Token atualizado:', tokenUpdate);
+          const token = this.keycloak.getKeycloakInstance().token;
+          if (token) sessionStorage.setItem('token', token);
+        }
+      },
+    });
   }
 
   logout(): void {

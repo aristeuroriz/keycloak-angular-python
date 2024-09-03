@@ -7,6 +7,7 @@ import { KeycloakService } from 'keycloak-angular';
 })
 export class AxiosService {
   private axiosInstance: AxiosInstance;
+  private token: string | null = null;
 
   constructor(private keycloakService: KeycloakService) {
     // Cria uma instância Axios com configurações padrão
@@ -24,11 +25,10 @@ export class AxiosService {
   private initializeRequestInterceptor(): void {
     this.axiosInstance.interceptors.request.use(
       async (config) => {
-        const token = await this.keycloakService.getToken(); // Obter o token do Keycloak
-        console.log('Token do Keycloak:', token);
-
-        if (token) {
-          config.headers['Authorization'] = `Bearer ${token}`; // Adicionar o token ao cabeçalho Authorization
+        // Obter um novo token ou substituir o token se houver alteração
+        this.replaceToken();
+        if (this.token) {
+          config.headers['Authorization'] = `Bearer ${this.token}`; // Adicionar o token ao cabeçalho Authorization
         }
         return config;
       },
@@ -54,8 +54,21 @@ export class AxiosService {
     );
   }
 
+  // Método para substituir o token do Keycloak quando houver alteração
+  private replaceToken(): void {
+    const token = sessionStorage.getItem('token');
+    if (token != this.token || !this.token) {
+      this.token = token;
+    }
+  }
+
   // Método para obter a instância configurada do Axios
   getAxiosInstance(): AxiosInstance {
     return this.axiosInstance;
+  }
+
+  // Método para obter o token do Keycloak
+  getToken(): string | null {
+    return this.token;
   }
 }
