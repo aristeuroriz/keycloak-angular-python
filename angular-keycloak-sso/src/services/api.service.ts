@@ -5,11 +5,11 @@ import { AxiosService } from './axios.service';
   providedIn: 'root',
 })
 export class ApiService {
-  constructor(private axiosService: AxiosService) {}
+  constructor(private readonly axiosService: AxiosService) {}
 
   async getProtectedData(): Promise<any> {
     const axiosInstance = this.axiosService.getAxiosInstance();
-    const response = await axiosInstance.get('/protected');
+    const response = await axiosInstance.get('/v1/indices');
     return response.data;
   }
 }
